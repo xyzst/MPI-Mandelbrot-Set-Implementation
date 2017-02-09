@@ -20,6 +20,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Author: Martin Burtscher
+Co-Author: Darren Rambaud
 */
 
 #include <cstdlib>
@@ -119,19 +120,10 @@ int main(int argc, char *argv[])
       }
     }
   }
-   
-    
-  switch(my_rank) {
-   case PROCESS_0: 
-      MPI_Gather(fraction_pic, NOT_WHOLE_MOVIE, MPI_UNSIGNED_CHAR, // WILL SEND PROC 0 RESULT
-        whole_pic, NOT_WHOLE_MOVIE, MPI_UNSIGNED_CHAR, PROCESS_0, MPI_COMM_WORLD); //PLACE INTO WHOLE_PIC
-      break;
-   default:
-      MPI_Gather(fraction_pic, NOT_WHOLE_MOVIE, MPI_UNSIGNED_CHAR, // WILL SEND 2 PROC 0
-        NULL, NOT_WHOLE_MOVIE, MPI_UNSIGNED_CHAR, PROCESS_0, MPI_COMM_WORLD); // N/A
-      break;
-  }
-
+     
+  MPI_Gather(fraction_pic, NOT_WHOLE_MOVIE, MPI_UNSIGNED_CHAR,
+   whole_pic, NOT_WHOLE_MOVIE, MPI_UNSIGNED_CHAR, PROCESS_0, MPI_COMM_WORLD);
+  
   // end time
   gettimeofday(&end, NULL);
  
@@ -148,12 +140,11 @@ int main(int argc, char *argv[])
       writeBMP(width, width,&whole_pic[frame * width * width], name);
     }
   }  
-
-  if (my_rank == 0) {
-    delete [] whole_pic;
-    delete [] fraction_pic;
+  if (my_rank == PROCESS_0) {
+     delete [] whole_pic;
   }
- 
+  delete [] fraction_pic;
+
   MPI_Finalize();
   return 0;
 }
