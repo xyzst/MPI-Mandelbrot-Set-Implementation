@@ -1,1 +1,1 @@
-<insert description here>
+<2> MPI & Mandelbrot Set Generation
